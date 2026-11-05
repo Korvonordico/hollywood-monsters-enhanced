@@ -92,3 +92,22 @@ C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe /nologo /target:winexe /
 ## License
 
 MIT for the launcher and the setup. See [LICENSE](LICENSE).
+
+## How it was made, step by step (for the curious)
+
+This part is only for those who want to know how the work went. I said what I wanted, tried the results and made the choices; Claude, running in Hermes on my PC, wrote the code and the scripts and ran the tests.
+
+1. **Looking at the disc.** Claude opened the disc image read-only, without installing anything. It is the Italian FX Interactive edition, the whole game is in the `Monsters` folder of the disc, and all its programs are 32-bit.
+2. **Installing.** The original installer asks for administrator rights and puts the game in "Program Files", where old games often cannot write their saved games. So the game was copied by hand to a normal folder.
+3. **The screen.** Without fixes the game switched the whole screen to 640x480 and once closed with an error. dgVoodoo2 was considered, but cnc-ddraw was chosen because it is made for old 2D DirectDraw games like this one. It also fixed switching to other windows (Alt+Tab).
+4. **The launcher.** A small program with the settings: full screen or window, window size, mouse speed only while the game runs, volume of the whole game, and a desktop icon. The Windows mouse speed comes back when the game closes.
+5. **The graphics filters.** 14 filters were added and put side by side in one comparison picture, so the choice could be made by eye. I chose Sharpen for my own game. The filters only change how the 640x480 picture is scaled on screen.
+6. **Saved games.** After each session the launcher copies the saved games to `Save backups`, only when they changed, and keeps the last 20 copies.
+7. **The sound sliders, the hard part.** In the game's menu the arrows next to the music, effects and voice sliders jumped from full to silent. I tested it by hand and found that the sound was connected; only the steps were wrong.
+   - Claude wrote a small program that reads the Windows sound meter, and a script that clicked the arrows, to measure what really changed.
+   - DSOAL, which rebuilds the old DirectSound on modern Windows, was tried: it changed nothing, so it was removed. Slowing the game down with cnc-ddraw changed nothing either.
+   - The cause: the game moves a slider one step for each loop while the mouse button is held down. Today's PCs run that loop so fast that a normal click (about a tenth of a second) empties the slider. The script's click was instant, so in the tests it moved only one step; that is why it seemed to work for Claude and not for me.
+   - Changing the game's program was too risky. Instead, the places where the game keeps the volumes and the subtitles were found by comparing its memory before and after each change. The launcher now writes there your volumes and subtitles when the game starts, and every second reads them back, so what you change in the game's menu is remembered for next time.
+8. **The original start window.** The FX "Inizio del gioco" window is made with Macromedia Director, so its pictures cannot be taken out easily. It was captured from the screen and redrawn bigger, without borders, with a fade in and buttons that light up. The trailer buttons were covered (the trailers are not installed) and "Rimuovi" became Options.
+9. **The setup.** For other people, a setup that installs the game from their own CD, a mounted ISO or an .iso file, or adds the enhancements to a game already installed. It takes the start window picture from the user's own game, so no game art is shared here. It was tested by script, installing from the .iso into an empty folder, then a friend tried it on his own PC.
+10. **This page.** Claude made the pictures and the text; I chose what to show and how.
