@@ -4,7 +4,9 @@
 
 <h1 align="center">Hollywood Monsters Enhanced</h1>
 
-Play Hollywood Monsters (Pendulo Studios, 1997; Italian FX Interactive edition, 2004) on Windows 10 and 11, with a new launcher, graphics filters and working sound settings.
+Play Hollywood Monsters (Pendulo Studios, 1997) on Windows 10 and 11, with a new launcher, graphics filters and working sound settings.
+
+**Fully working with the Italian FX Interactive edition (2004).** The other editions should work too, with some small differences: the in-game sound sliders fix and the original start window are made for the Italian one, and I could not test the others because I don't own them. If something does not work with your edition, open an [issue](../../issues) and we'll talk about it: I'm open to fixing any problem that comes up.
 
 The start window is the original FX one, redrawn sharper and bigger for today's screens. **Gioca** starts the game, **Options** opens the new settings, **Manuale di gioco** opens the manual and **Esci** closes it.
 
@@ -31,7 +33,7 @@ The start window is the original FX one, redrawn sharper and bigger for today's 
 
 There may still be defects I have not found. If something does not work, please open an [issue](../../issues) and tell me what you did and what you saw, so I can fix it.
 
-You need your own copy of the game: the CD or its .iso, Italian FX Interactive edition (2004). No game files are included here.
+You need your own copy of the game: the CD or its .iso. No game files are included here.
 
 ## How to install
 
@@ -61,22 +63,17 @@ The setup does not need administrator rights and does not change anything in Win
 
 ## Made with AI
 
-This work was done with the help of AI: Claude (by Anthropic), running in [Hermes](https://github.com/NousResearch/hermes-agent), an AI agent on my PC, guided by me ([Korvonordico](https://github.com/Korvonordico)). I said what I wanted, tried the results and made the choices; Claude wrote the code and the scripts and ran the tests.
+Made with Claude (by Anthropic) on my own workstation.
 
-How it went, step by step:
+Tools used:
 
-1. Claude looked inside the disc image without installing anything: it is the Italian FX Interactive edition, and all its programs are 32-bit.
-2. The original installer asks for administrator rights and puts the game in "Program Files", where old games can have trouble with saved games, so the game was copied by hand to a normal folder.
-3. Without fixes the game switched the whole screen to 640x480 and once closed with an error. dgVoodoo2 was considered; cnc-ddraw was chosen, because it is made for old 2D DirectDraw games like this one.
-4. A launcher with screen, mouse and volume settings, and a desktop icon.
-5. The graphics filters: 14 of them, compared side by side in one picture. I chose Sharpen for my own game.
-6. Automatic backups of the saved games.
-7. The sound sliders. I noticed that they only went from full to silent. Claude measured the game's sound with a small program that reads the Windows sound meter, while a script clicked the arrows. [DSOAL](https://github.com/kcat/dsoal) was tried and changed nothing, so it was removed. The cause was how long the mouse button stays down. The places where the game keeps the volumes were then found by comparing its memory before and after each click, and the launcher now sets them.
-8. The original start window, saved from the game and redrawn bigger, with Options in place of the uninstall button.
-9. The setup, which installs from your own disc or .iso, tested on an empty folder.
-10. This page: Claude made the pictures and the text, I chose what to show and how.
-
-Tools used: Hermes with Claude; Hermes' computer use and Python scripts to move the mouse and press keys during the tests; PowerShell for screenshots and to open the disc image; the C# compiler that ships with Windows; cnc-ddraw with the libretro shaders; DSOAL (tried, then removed); the GitHub CLI for the page preview; and [Token Quotient](https://github.com/Korvonordico/quotient-claude-tokens), my own tool, to know what each step would cost before starting it.
+- [Claude](https://www.anthropic.com/claude) by Anthropic
+- [Hermes Agent](https://github.com/NousResearch/hermes-agent) by Nous Research
+- [cnc-ddraw](https://github.com/FunkyFr3sh/cnc-ddraw) by FunkyFr3sh
+- [libretro GLSL shaders](https://github.com/libretro/glsl-shaders)
+- [DSOAL](https://github.com/kcat/dsoal) by kcat (tried, then removed)
+- [GitHub CLI](https://cli.github.com)
+- [Token Quotient](https://github.com/Korvonordico/quotient-claude-tokens)
 
 ## How to build
 
