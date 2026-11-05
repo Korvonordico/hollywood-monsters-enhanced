@@ -29,6 +29,29 @@ The start window is the original FX one, redrawn sharper and bigger for today's 
   <img src="docs/filter-comparison.png" width="32%" alt="The same picture with each graphics filter">
 </p>
 
+## Before and after
+
+<p align="center">
+  <img src="docs/compare-start-window.png" width="90%" alt="The original start window at its real size, next to the new one">
+</p>
+<p align="center"><em>The start window: the original at its real size, and the new one, scaled for today's screens.</em></p>
+
+<p align="center">
+  <img src="docs/compare-split.png" width="80%" alt="The office of The Quill: left half with the original pixels, right half with the Sharpen filter">
+</p>
+<p align="center"><em>Left half: the game's own 640 x 480 picture, pixel for pixel. Right half: the Sharpen filter, full screen.</em></p>
+
+<p align="center">
+  <img src="docs/compare-closeup-editor.png" width="100%" alt="Close-up of the editor at his desk: original pixels, Sharpen, xBRZ">
+  <img src="docs/compare-closeup-wall.png" width="100%" alt="Close-up of the newspaper on the wall: original pixels, Sharpen, xBRZ">
+</p>
+<p align="center"><em>Close-ups: the original pixels, Sharpen, and xBRZ (two of the 14 filters).</em></p>
+
+<p align="center">
+  <img src="docs/window-mode.png" width="70%" alt="The game in a 960 x 720 window">
+</p>
+<p align="center"><em>The game in a 960 x 720 window; Alt+Enter switches to full screen. Without the fixes, the game switches the whole screen to 640 x 480.</em></p>
+
 **The game installs from your own disc, starts on Windows 11, runs full screen or in a window with sharp or filtered pixels, and the music, sound effects and voice volumes now work.**
 
 There may still be defects I have not found. If something does not work, please open an [issue](../../issues) and tell me what you did and what you saw, so I can fix it.
