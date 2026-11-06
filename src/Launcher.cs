@@ -113,15 +113,32 @@ static class Program
             ProcessStartInfo psi = new ProcessStartInfo(GameExe);
             psi.WorkingDirectory = Dir;
             psi.UseShellExecute = false;
+            if (Wine.Running)
+            {
+                // Wine and Proton load their own ddraw.dll first: ask for the cnc-ddraw one in the game folder.
+                // Saved in Wine's own registry (only exists under Wine), for monsters.exe only.
+                try
+                {
+                    using (Microsoft.Win32.RegistryKey k = Microsoft.Win32.Registry.CurrentUser.CreateSubKey(@"Software\Wine\AppDefaults\monsters.exe\DllOverrides"))
+                        k.SetValue("ddraw", "native,builtin");
+                    Log("running on Wine/Proton " + Wine.Version + ": cnc-ddraw set for monsters.exe");
+                }
+                catch (Exception e) { Log("Wine ddraw setting failed: " + e.Message); }
+            }
             Process game = Process.Start(psi);
             Log("game started, pid " + game.Id);
             float got = -1;
-            for (int i = 0; i < 60 && !game.HasExited && got < 0; i++)
+            if (Wine.Running)
+                Log("game volume: not available on Wine/Proton (the in-game sliders and the system volume work)");
+            else
             {
-                Thread.Sleep(500);
-                got = AudioSessions.SetVolume(game.Id, s.Volume / 100f);
+                for (int i = 0; i < 60 && !game.HasExited && got < 0; i++)
+                {
+                    Thread.Sleep(500);
+                    got = AudioSessions.SetVolume(game.Id, s.Volume / 100f);
+                }
+                Log(got >= 0 ? "game volume now " + Math.Round(got * 100) + "% (wanted " + s.Volume + "%)" : "game volume NOT set (no sound session found in 30 s)");
             }
-            Log(got >= 0 ? "game volume now " + Math.Round(got * 100) + "% (wanted " + s.Volume + "%)" : "game volume NOT set (no sound session found in 30 s)");
             GameMemory.ApplyAndFollow(game, s);
             s.Save(SettingsFile);
             Log(string.Format("kept for next time: music={0} sfx={1} voice={2} subtitles={3}", s.Music, s.Sfx, s.Voice, s.Subtitles));
@@ -206,6 +223,37 @@ class Settings
         File.WriteAllText(path, string.Format(
             "; Hollywood Monsters launcher choices\r\ndisplay={0}\r\nfilter={1}\r\nmousespeed={2}\r\nvolume={3}\r\nmusic={4}\r\nsfx={5}\r\nvoice={6}\r\nsubtitles={7}\r\n",
             Display, Filter, MouseSpeed, Volume, Music, Sfx, Voice, Subtitles));
+    }
+}
+
+// Linux and Steam Deck: Wine and Proton add wine_get_version to ntdll.dll; real Windows does not have it.
+static class Wine
+{
+    [DllImport("kernel32.dll")] static extern IntPtr GetModuleHandle(string name);
+    [DllImport("kernel32.dll", CharSet = CharSet.Ansi)] static extern IntPtr GetProcAddress(IntPtr module, string name);
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)] delegate IntPtr GetVersionFn();
+
+    public static bool Running { get { return Proc() != IntPtr.Zero; } }
+
+    public static string Version
+    {
+        get
+        {
+            try
+            {
+                IntPtr p = Proc();
+                if (p == IntPtr.Zero) return "";
+                GetVersionFn f = (GetVersionFn)Marshal.GetDelegateForFunctionPointer(p, typeof(GetVersionFn));
+                return Marshal.PtrToStringAnsi(f());
+            }
+            catch { return "?"; }
+        }
+    }
+
+    static IntPtr Proc()
+    {
+        IntPtr h = GetModuleHandle("ntdll.dll");
+        return h == IntPtr.Zero ? IntPtr.Zero : GetProcAddress(h, "wine_get_version");
     }
 }
 
@@ -412,6 +460,7 @@ class LauncherForm : Form
         volume.ValueChanged += delegate { volumeValue.Text = volume.Value + "%"; };
         volumeValue.Text = volume.Value + "%";
         Controls.Add(volume); Controls.Add(volumeValue);
+        if (Wine.Running) { volume.Enabled = false; volumeValue.Text = "Windows only"; volumeValue.Height = 40; }   // Wine keeps each program's sound to itself
 
         AddSlider("Music", music, s.Music, 210);
         AddSlider("Sound effects", sfx, s.Sfx, 265);

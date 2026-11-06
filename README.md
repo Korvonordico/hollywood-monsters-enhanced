@@ -4,7 +4,7 @@
 
 <h1 align="center">Hollywood Monsters Enhanced</h1>
 
-Play Hollywood Monsters (Pendulo Studios, 1997) on Windows 10 and 11, with a new launcher, graphics filters and working sound settings.
+Play Hollywood Monsters (Pendulo Studios, 1997) on Windows 10 and 11, with a new launcher, graphics filters and working sound settings. It also runs on Linux and on the Steam Deck: see [Linux and Steam Deck](#linux-and-steam-deck).
 
 **Fully working with the Italian FX Interactive edition (2004).** The other editions should work too, with some small differences: the in-game sound sliders fix and the original start window are made for the Italian one, and I could not test the others because I don't own them. If something does not work with your edition, open an [issue](../../issues) and we'll talk about it: I'm open to fixing any problem that comes up.
 
@@ -69,6 +69,28 @@ You need your own copy of the game: the CD or its .iso. No game files are includ
 
 The setup does not need administrator rights and does not change anything in Windows. To remove everything, delete the game folder and the desktop icon.
 
+## Linux and Steam Deck
+
+The same download works on Linux and on the Steam Deck, through Wine or Proton (the programs that run Windows games there). The launcher notices it is running on Linux and sets itself up.
+
+**So far it was tested only with Wine 10 on Ubuntu, not on a real Steam Deck and not with Proton.** If something does not work for you, please tell me in the [issues](../../issues).
+
+On the Steam Deck, in Desktop Mode:
+
+1. Download `HollywoodMonstersEnhanced.zip` from [Releases](../../releases/latest) and unzip it, for example in your Downloads folder.
+2. Copy the files of your disc to the Steam Deck (it has no disc drive). If you have an .iso file, open it with the Ark app and extract it into a folder: the setup cannot open .iso files on Linux.
+3. In Steam choose **Games > Add a Non-Steam Game to My Library**, press **Browse** and pick `Setup.exe`. In your library, right-click it, choose **Properties > Compatibility**, tick **Force the use of a specific Steam Play compatibility tool** and pick Proton. Start it.
+4. In the setup press **Browse...** next to "Where is it?" and pick the folder with your disc's files (the one with the `Monsters` folder inside). The game goes into `Games/Hollywood Monsters` in your home folder. Press **Install**.
+5. Add `Hollywood Monsters Launcher.exe` from that folder to Steam in the same way, with Proton, and play from there.
+
+On other Linux computers: install Wine from your software centre, then in a terminal, in the unzipped folder, run `wine Setup.exe`. To play: `wine ~/Games/"Hollywood Monsters/Hollywood Monsters Launcher.exe"`.
+
+What is different on Linux:
+
+- The launcher's **Game volume** slider is greyed out: on Linux the launcher cannot change another program's volume. The music, sound effects and voices settings work; for the rest use the system volume.
+- The setup does not make a desktop shortcut, and installs into `Games/Hollywood Monsters` in your home folder.
+- Not checked yet: the mouse speed setting, a real Steam Deck, Proton, and playing with the Steam Deck's controls (the game is played with the mouse).
+
 ## What was done to make it work
 
 - **Screen.** The game draws with DirectDraw at 640x480, which breaks on modern Windows. [cnc-ddraw](https://github.com/FunkyFr3sh/cnc-ddraw) replaces it, so the game runs full screen (4:3 or stretched) or in a window at 640x480, 960x720 or 1280x960. Alt+Enter switches between window and full screen.
@@ -77,11 +99,13 @@ The setup does not need administrator rights and does not change anything in Win
 - **Game volume and mouse speed.** The launcher sets the volume of the whole game, and a mouse speed that applies only while the game runs; the Windows mouse speed comes back when it closes.
 - **Saved games.** After each session the launcher copies your saved games to the `Save backups` folder, only when they changed, and keeps the last 20 copies.
 - **Start window.** The original "Inizio del gioco" window, scaled for big screens, with a fade in and highlighted buttons. The trailer buttons are gone because the trailers are not installed, and "Rimuovi" became **Options**. The setup takes the picture from your own copy of the game.
+- **Linux and Steam Deck.** Wine and Proton use their own DirectDraw, and with it the game stops at once with "Errore nell'installazione di Direct Draw". When the launcher sees it is running under Wine or Proton, it tells them to use cnc-ddraw for this game, so nothing has to be set by hand.
 
 ## Tested
 
 - By me, by hand: the launcher, the start window, and the sound sliders in the game.
 - By script on Windows 11, with Claude moving the mouse and pressing the keys and checking every screenshot: full screen and window modes, all 14 filters, the sound sliders (measured, see below), the setup from the .iso into an empty folder, and the launcher starting the game with the chosen volumes.
+- By script on Linux (version 1.1), with Wine 10 on Ubuntu running inside Windows (WSL) and a virtual screen: unzipping the download, the setup from a folder with the disc's files into a new Wine, its message for .iso files, the start window, the options, the game with two filters, and the game's sound reaching the system (checked in the system's list of sounds, not listened to). Not on a real Steam Deck or with Proton.
 - Not tested yet: installing from a real CD, other editions of the game (the original Spanish one by Dinamic Multimedia, 1997, for DOS; the FX Interactive Windows editions in other languages; a rare English one) (they should get everything except the sound sliders fix), saved-game backups with real saved games.
 
 ## Made with AI

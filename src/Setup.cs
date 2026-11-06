@@ -56,9 +56,15 @@ class SetupForm : Form
         Add(targetLabel, "Install the game in", 20, 205, 300, 22);
         Add(target, null, 20, 228, 380, 26);
         target.Text = @"C:\Games\Hollywood Monsters";
+        if (Wine.Running)
+        {
+            // Linux and Steam Deck: install in the user's own folder (~/Games), where it is easy to find and add to Steam
+            string home = (Environment.GetEnvironmentVariable("WINEHOMEDIR") ?? "").Replace(@"\??\", "");
+            if (home != "") target.Text = Path.Combine(home, @"Games\Hollywood Monsters");
+        }
         browseTarget.Text = "Browse..."; Add(browseTarget, null, 410, 226, 90, 28);
 
-        shortcut.Text = "Put a shortcut on the desktop"; shortcut.Checked = true; Add(shortcut, null, 20, 265, 300, 24);
+        shortcut.Text = "Put a shortcut on the desktop"; shortcut.Checked = !Wine.Running; Add(shortcut, null, 20, 265, 300, 24);
         Add(bar, null, 20, 300, 480, 18);
         Add(status, "", 20, 322, 480, 40); status.ForeColor = Color.DimGray;
 
@@ -96,11 +102,12 @@ class SetupForm : Form
     {
         if (fromDisc.Checked)
         {
-            using (var d = new OpenFileDialog { Title = "Choose the disc image", Filter = "Disc image (*.iso)|*.iso|All files|*.*" })
-            {
-                if (d.ShowDialog(this) == DialogResult.OK) { source.Text = d.FileName; return; }
-            }
-            using (var d = new FolderBrowserDialog { Description = "Or choose the CD drive" })
+            if (!Wine.Running)   // on Linux an .iso cannot be opened by the setup: go straight to the folder
+                using (var d = new OpenFileDialog { Title = "Choose the disc image", Filter = "Disc image (*.iso)|*.iso|All files|*.*" })
+                {
+                    if (d.ShowDialog(this) == DialogResult.OK) { source.Text = d.FileName; return; }
+                }
+            using (var d = new FolderBrowserDialog { Description = Wine.Running ? "Choose the folder with your disc's files" : "Or choose the CD drive" })
                 if (d.ShowDialog(this) == DialogResult.OK) source.Text = d.SelectedPath;
         }
         else
@@ -169,6 +176,7 @@ class SetupForm : Form
                 string root = src;
                 if (File.Exists(src) && src.EndsWith(".iso", StringComparison.OrdinalIgnoreCase))
                 {
+                    if (Wine.Running) throw new Exception("On Linux and Steam Deck the setup cannot open an .iso file. Mount it or extract it first, then choose its folder.");
                     Say("Opening the disc image...");
                     mounted = src; root = Mount(src);
                 }
@@ -190,7 +198,9 @@ class SetupForm : Form
                 warning = "The original start screen could not be saved, so the launcher opens its settings window. Run the setup again to retry.";
             Progress(97);
 
-            if (link) Shortcut(dst);
+            if (link)
+                try { Shortcut(dst); }
+                catch (Exception e) { Log(dst, "shortcut: " + e.Message); warning = (warning == null ? "" : warning + " ") + "The desktop shortcut could not be made."; }
             if (!new FileInfo(Path.Combine(dst, "monsters.exe")).Length.Equals(1167360L))
                 warning = (warning == null ? "" : warning + " ") + "This monsters.exe is not the Italian FX 2004 one: the in-game sound sliders fix stays off.";
         }
@@ -272,6 +282,11 @@ class SetupForm : Form
                 // refuse a capture covered by another window: the corners must show the dark FX frame
                 Color c = b.GetPixel(r.R / 2, r.B - 3);
                 if (c.R + c.G + c.B > 200) { Log(dir, "art: covered by another window"); return false; }
+                // refuse an empty (black) capture, which some Linux screens give: the real one is about half lit
+                int n = 0, lit = 0;
+                for (int y = 4; y < r.B; y += Math.Max(1, r.B / 20))
+                    for (int x = 4; x < r.R; x += Math.Max(1, r.R / 20)) { Color q = b.GetPixel(x, y); n++; if (q.R + q.G + q.B > 150) lit++; }
+                if (lit * 20 < n) { Log(dir, "art: the capture is empty (" + lit + " of " + n + " points lit)"); return false; }
                 b.Save(file, System.Drawing.Imaging.ImageFormat.Png);
             }
             return true;
@@ -297,5 +312,21 @@ class SetupForm : Form
         string ico = Path.Combine(dir, "MVM.ico");
         if (File.Exists(ico)) st.InvokeMember("IconLocation", System.Reflection.BindingFlags.SetProperty, null, sc, new object[] { ico });
         st.InvokeMember("Save", System.Reflection.BindingFlags.InvokeMethod, null, sc, null);
+    }
+}
+
+// Linux and Steam Deck: Wine and Proton add wine_get_version to ntdll.dll; real Windows does not have it.
+static class Wine
+{
+    [DllImport("kernel32.dll")] static extern IntPtr GetModuleHandle(string name);
+    [DllImport("kernel32.dll", CharSet = CharSet.Ansi)] static extern IntPtr GetProcAddress(IntPtr module, string name);
+
+    public static bool Running
+    {
+        get
+        {
+            IntPtr h = GetModuleHandle("ntdll.dll");
+            return h != IntPtr.Zero && GetProcAddress(h, "wine_get_version") != IntPtr.Zero;
+        }
     }
 }
