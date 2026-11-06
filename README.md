@@ -4,7 +4,7 @@
 
 <h1 align="center">Hollywood Monsters Enhanced</h1>
 
-Play Hollywood Monsters (Pendulo Studios, 1997) on Windows 10 and 11, with a new launcher, graphics filters and working sound settings. It also runs on Linux and on the Steam Deck: see [Linux and Steam Deck](#linux-and-steam-deck).
+Play Hollywood Monsters (Pendulo Studios, 1997) on Windows 10 and 11, with a new launcher, graphics filters and working sound settings. Linux and Steam Deck support is **experimental and not tested yet** on real hardware: it should be compatible, and if something does not work please report it in the [issues](../../issues). See [Linux and Steam Deck](#linux-and-steam-deck).
 
 **Fully working with the Italian FX Interactive edition (2004).** The other editions should work too, with some small differences: the in-game sound sliders fix and the original start window are made for the Italian one, and I could not test the others because I don't own them. If something does not work with your edition, open an [issue](../../issues) and we'll talk about it: I'm open to fixing any problem that comes up.
 
