@@ -73,7 +73,7 @@ The setup does not need administrator rights and does not change anything in Win
 
 The same download works on Linux and on the Steam Deck, through Wine or Proton (the programs that run Windows games there). The launcher notices it is running on Linux and sets itself up.
 
-**So far it was tested only with Wine 10 on Ubuntu, not on a real Steam Deck and not with Proton.** If something does not work for you, please tell me in the [issues](../../issues).
+**Experimental: not tested yet on a real Linux PC or Steam Deck, only with Wine 10 on Ubuntu (not with Proton).** It should be compatible; if something goes wrong, please report it in the [issues](../../issues).
 
 Another way: according to the author of ScummVM's Hollywood Monsters engine ([issue #1](../../issues/1)), the game also runs in the [ScummVM daily builds](https://buildbot.scummvm.org/#/dailybuilds), on Linux and the Steam Deck without Wine. That is a different program: it does not have this project's filters, start window and sound fixes.
 
